@@ -6,7 +6,7 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 type Donation = {
@@ -39,8 +39,12 @@ export default function AdminScreen() {
     setLoading(true);
     try {
       const [donationsRes, charitiesRes] = await Promise.all([
-        fetch("http://localhost:5000/api/donations/user/1"),
-        fetch("http://localhost:5000/api/charities"),
+        fetch(
+          "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/donations/user/1",
+        ),
+        fetch(
+          "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/charities",
+        ),
       ]);
       const donationsData = await donationsRes.json();
       const charitiesData = await charitiesRes.json();
@@ -60,7 +64,7 @@ export default function AdminScreen() {
   const updateDonationStatus = async (id: number, status: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/donations/${id}/status`,
+        `http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/donations/${id}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

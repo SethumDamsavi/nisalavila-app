@@ -34,7 +34,7 @@ export default function ProfileScreen() {
   const fetchDonations = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/donations/user/1",
+        "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/donations/user/1",
       );
       const data = await response.json();
       setDonations(data);

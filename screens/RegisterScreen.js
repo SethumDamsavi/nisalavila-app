@@ -25,7 +25,7 @@ export default function RegisterScreen({ onGoToLogin }) {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://172.20.10.9:5000/api/auth/register",
+        "http://172.20.10.9:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/auth/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
