@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Heart, Home, Search } from "lucide-react-native";
+
 export default function TabLayout() {
   return (
     <Tabs
@@ -10,24 +10,10 @@ export default function TabLayout() {
         headerShown: false,
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Charities",
-        }}
-      />
-      <Tabs.Screen
-        name="donate"
-        options={{
-          title: "Donate",
-        }}
-      />
+      <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="explore" options={{ title: "Charities" }} />
+      <Tabs.Screen name="donate" options={{ title: "Donate" }} />
+      <Tabs.Screen name="admin" options={{ title: "Admin" }} />
     </Tabs>
   );
 }
