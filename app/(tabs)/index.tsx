@@ -1,206 +1,203 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
-export default function App() {
-  const [screen, setScreen] = useState("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+type Post = {
+  id: number;
+  title: string;
+  content: string;
+  charityId: number;
+  createdAt: string;
+};
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
-    setLoading(true);
+export default function HomeScreen() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchPosts = async () => {
     try {
-      const response = await fetch("http://172.20.10.9:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch("http://localhost:5000/api/posts");
       const data = await response.json();
-      if (response.ok) {
-        Alert.alert("Success", "Login successful!");
-      } else {
-        Alert.alert("Error", data.message);
-      }
+      setPosts(data);
     } catch (error) {
-      Alert.alert("Error", "Cannot connect to server");
+      console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleRegister = async () => {
-    if (!name || !email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await fetch("http://172.20.10.9:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        Alert.alert("Success", "Account created! Please login.");
-        setScreen("login");
-      } else {
-        Alert.alert("Error", data.message);
-      }
-    } catch (error) {
-      Alert.alert("Error", "Cannot connect to server");
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchPosts();
   };
 
-  if (screen === "register") {
-    return (
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <View style={styles.inner}>
-          <Text style={styles.title}>Nisalavila</Text>
-          <Text style={styles.subtitle}>Create your account</Text>
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your name"
-            placeholderTextColor="#999"
-            value={name}
-            onChangeText={setName}
-          />
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            placeholderTextColor="#999"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            placeholderTextColor="#999"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Register</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.registerLink}
-            onPress={() => setScreen("login")}
-          >
-            <Text style={styles.registerText}>
-              {"Already have an account? "}
-              <Text style={styles.registerHighlight}>Login</Text>
-            </Text>
-          </TouchableOpacity>
+  const renderPost = ({ item }: { item: Post }) => (
+    <View style={styles.card}>
+      <View style={styles.cardTop}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>N</Text>
         </View>
-      </KeyboardAvoidingView>
+        <View style={styles.cardMeta}>
+          <Text style={styles.charityLabel}>Nisalavila Foundation</Text>
+          <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.postTitle}>{item.title}</Text>
+      <Text style={styles.postContent}>{item.content}</Text>
+
+      <View style={styles.cardActions}>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionText}>❤️ Like</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionText}>💬 Comment</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionText}>🔗 Share</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#2ecc71" />
+        <Text style={styles.loadingText}>Loading feed...</Text>
+      </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.inner}>
-        <Text style={styles.title}>Nisalavila</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
-
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your email"
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your password"
-          placeholderTextColor="#999"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Login</Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.registerLink}
-          onPress={() => setScreen("register")}
-        >
-          <Text style={styles.registerText}>
-            {"Don't have an account? "}
-            <Text style={styles.registerHighlight}>Register</Text>
-          </Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Nisalavila</Text>
+        <Text style={styles.headerSubtitle}>Charity Updates</Text>
       </View>
-    </KeyboardAvoidingView>
+
+      {posts.length === 0 ? (
+        <View style={styles.centered}>
+          <Text style={styles.emptyText}>No announcements yet</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderPost}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#2ecc71"]}
+            />
+          }
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  inner: { flex: 1, padding: 24, justifyContent: "center" },
-  title: { fontSize: 32, fontWeight: "bold", color: "#1a1a1a", marginBottom: 8, textAlign: "center" },
-  subtitle: { fontSize: 16, color: "#666", marginBottom: 32, textAlign: "center" },
-  label: { fontSize: 14, fontWeight: "600", color: "#1a1a1a", marginBottom: 6 },
-  input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 10, padding: 14, fontSize: 16, color: "#1a1a1a", marginBottom: 16, backgroundColor: "#f9f9f9" },
-  button: { backgroundColor: "#2ecc71", padding: 16, borderRadius: 10, alignItems: "center", marginTop: 8 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  registerLink: { marginTop: 20, alignItems: "center" },
-  registerText: { fontSize: 14, color: "#666" },
-  registerHighlight: { color: "#2ecc71", fontWeight: "600" },
+  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  header: {
+    backgroundColor: "#2ecc71",
+    padding: 20,
+    paddingTop: 40,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#d5f5e3",
+    marginTop: 2,
+  },
+  list: { padding: 16, paddingBottom: 20 },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "#2ecc71",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  avatarText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  cardMeta: { flex: 1 },
+  charityLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#1a1a1a",
+  },
+  dateText: { fontSize: 12, color: "#999", marginTop: 2 },
+  postTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginBottom: 8,
+  },
+  postContent: {
+    fontSize: 14,
+    color: "#555",
+    lineHeight: 22,
+    marginBottom: 12,
+  },
+  cardActions: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    paddingTop: 10,
+    gap: 16,
+  },
+  actionButton: { flexDirection: "row", alignItems: "center" },
+  actionText: { fontSize: 13, color: "#888" },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  loadingText: { marginTop: 12, color: "#666", fontSize: 14 },
+  emptyText: { fontSize: 16, color: "#999" },
 });
