@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import "../../i18n/index";
 
 type Post = {
   id: number;
@@ -18,10 +20,12 @@ type Post = {
 };
 
 export default function HomeScreen() {
+  const { t, i18n } = useTranslation();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likes, setLikes] = useState<{ [key: number]: boolean }>({});
+  const [language, setLanguage] = useState<"en" | "si">("en");
 
   const fetchPosts = async () => {
     try {
@@ -49,6 +53,12 @@ export default function HomeScreen() {
     setLikes((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const toggleLanguage = () => {
+    const newLang = language === "en" ? "si" : "en";
+    setLanguage(newLang);
+    i18n.changeLanguage(newLang);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -60,45 +70,41 @@ export default function HomeScreen() {
 
   const renderPost = ({ item }: { item: Post }) => (
     <View style={styles.card}>
-      {/* Card Header */}
       <View style={styles.cardTop}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>N</Text>
         </View>
         <View style={styles.cardMeta}>
-          <Text style={styles.charityLabel}>Nisalavila Foundation</Text>
+          <Text style={styles.charityLabel}>{t("home.title")} Foundation</Text>
           <Text style={styles.dateText}>📅 {formatDate(item.createdAt)}</Text>
         </View>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>Update</Text>
+          <Text style={styles.badgeText}>{t("home.update")}</Text>
         </View>
       </View>
 
-      {/* Divider */}
       <View style={styles.divider} />
 
-      {/* Content */}
       <Text style={styles.postTitle}>{item.title}</Text>
       <Text style={styles.postContent}>{item.content}</Text>
 
-      {/* Divider */}
       <View style={styles.divider} />
 
-      {/* Actions */}
       <View style={styles.cardActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => toggleLike(item.id)}
         >
           <Text style={styles.actionText}>
-            {likes[item.id] ? "❤️" : "🤍"} {likes[item.id] ? "Liked" : "Like"}
+            {likes[item.id] ? "❤️" : "🤍"}{" "}
+            {likes[item.id] ? t("home.liked") : t("home.like")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>💬 Comment</Text>
+          <Text style={styles.actionText}>💬 {t("home.comment")}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>🔗 Share</Text>
+          <Text style={styles.actionText}>🔗 {t("home.share")}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -108,7 +114,7 @@ export default function HomeScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#2ecc71" />
-        <Text style={styles.loadingText}>Loading feed...</Text>
+        <Text style={styles.loadingText}>{t("home.loading")}</Text>
       </View>
     );
   }
@@ -118,13 +124,20 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>🌿 Nisalavila</Text>
-          <Text style={styles.headerSubtitle}>
-            Connecting hearts, changing lives
-          </Text>
+          <Text style={styles.headerTitle}>🌿 {t("home.title")}</Text>
+          <Text style={styles.headerSubtitle}>{t("home.subtitle")}</Text>
         </View>
-        <View style={styles.headerBadge}>
-          <Text style={styles.headerBadgeText}>{posts.length} Posts</Text>
+        <View style={styles.headerRight}>
+          <View style={styles.headerBadge}>
+            <Text style={styles.headerBadgeText}>
+              {posts.length} {t("home.posts")}
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.langToggle} onPress={toggleLanguage}>
+            <Text style={styles.langToggleText}>
+              {language === "en" ? "සිං" : "EN"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -132,25 +145,25 @@ export default function HomeScreen() {
       <View style={styles.statsBar}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>1</Text>
-          <Text style={styles.statLabel}>Charity</Text>
+          <Text style={styles.statLabel}>{t("home.charity")}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{posts.length}</Text>
-          <Text style={styles.statLabel}>Updates</Text>
+          <Text style={styles.statLabel}>{t("home.updates")}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>LKR 500K</Text>
-          <Text style={styles.statLabel}>Goal</Text>
+          <Text style={styles.statLabel}>{t("home.goal")}</Text>
         </View>
       </View>
 
       {posts.length === 0 ? (
         <View style={styles.centered}>
           <Text style={styles.emptyIcon}>📭</Text>
-          <Text style={styles.emptyText}>No announcements yet</Text>
-          <Text style={styles.emptySubtext}>Check back soon for updates</Text>
+          <Text style={styles.emptyText}>{t("home.noAnnouncements")}</Text>
+          <Text style={styles.emptySubtext}>{t("home.checkBack")}</Text>
         </View>
       ) : (
         <FlatList
@@ -184,6 +197,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 22, fontWeight: "bold", color: "#fff" },
   headerSubtitle: { fontSize: 12, color: "#d5f5e3", marginTop: 2 },
+  headerRight: { alignItems: "flex-end", gap: 6 },
   headerBadge: {
     backgroundColor: "rgba(255,255,255,0.2)",
     paddingHorizontal: 10,
@@ -191,6 +205,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   headerBadgeText: { color: "#fff", fontSize: 12, fontWeight: "600" },
+  langToggle: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+  },
+  langToggleText: { color: "#fff", fontSize: 12, fontWeight: "700" },
   statsBar: {
     backgroundColor: "#fff",
     flexDirection: "row",
@@ -258,11 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     lineHeight: 22,
   },
-  postContent: {
-    fontSize: 14,
-    color: "#555",
-    lineHeight: 22,
-  },
+  postContent: { fontSize: 14, color: "#555", lineHeight: 22 },
   cardActions: {
     flexDirection: "row",
     justifyContent: "space-around",

@@ -1,4 +1,6 @@
 import { Tabs } from "expo-router";
+import "../i18n/index";
+
 
 export default function TabLayout() {
   return (

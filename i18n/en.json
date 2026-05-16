@@ -1,0 +1,60 @@
+{
+  "home": {
+    "title": "Nisalavila",
+    "subtitle": "Connecting hearts, changing lives",
+    "posts": "Posts",
+    "charity": "Charity",
+    "updates": "Updates",
+    "goal": "Goal",
+    "update": "Update",
+    "like": "Like",
+    "liked": "Liked",
+    "comment": "Comment",
+    "share": "Share",
+    "noAnnouncements": "No announcements yet",
+    "checkBack": "Check back soon for updates",
+    "loading": "Loading feed..."
+  },
+  "charities": {
+    "title": "Charities",
+    "subtitle": "Support a cause you care about",
+    "donateNow": "Donate Now",
+    "verified": "Verified",
+    "loading": "Loading charities...",
+    "noCharities": "No charities found"
+  },
+  "donate": {
+    "title": "Make a Donation",
+    "subtitle": "Your contribution makes a difference",
+    "selectCharity": "Select Charity",
+    "donationType": "Donation Type",
+    "online": "Online",
+    "bankSlip": "Bank Slip",
+    "quickAmount": "Quick Amount (LKR)",
+    "customAmount": "Or Enter Amount (LKR)",
+    "donateNow": "Donate Now",
+    "submitBankSlip": "Submit Bank Slip",
+    "summary": "Donation Summary",
+    "charity": "Charity",
+    "amount": "Amount",
+    "type": "Type",
+    "onlinePayment": "Online Payment"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password",
+    "enterName": "Enter your name",
+    "signIn": "Sign in to your account",
+    "createAccount": "Create your account",
+    "noAccount": "Don't have an account? ",
+    "haveAccount": "Already have an account? "
+  },
+  "language": "Language",
+  "english": "English",
+  "sinhala": "සිංහල"
+}
