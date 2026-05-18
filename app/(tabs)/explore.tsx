@@ -24,7 +24,7 @@ export default function CharitiesScreen() {
   const fetchCharities = async () => {
     try {
       const response = await fetch(
-        "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/charities",
+        "https://nisalavila-api-production.up.railway.app/api/charities",
       );
       const data = await response.json();
       setCharities(data);

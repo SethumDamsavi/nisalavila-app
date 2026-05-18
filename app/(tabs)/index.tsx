@@ -30,7 +30,7 @@ export default function HomeScreen() {
   const fetchPosts = async () => {
     try {
       const response = await fetch(
-        "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/posts",
+        "https://nisalavila-api-production.up.railway.app/api/posts",
       );
       const data = await response.json();
       setPosts(data);

@@ -40,11 +40,9 @@ export default function AdminScreen() {
     try {
       const [donationsRes, charitiesRes] = await Promise.all([
         fetch(
-          "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/donations/user/1",
+          "https://nisalavila-api-production.up.railway.app/api/donations/user/1",
         ),
-        fetch(
-          "http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/charities",
-        ),
+        fetch("https://nisalavila-api-production.up.railway.app/api/charities"),
       ]);
       const donationsData = await donationsRes.json();
       const charitiesData = await charitiesRes.json();
@@ -64,7 +62,7 @@ export default function AdminScreen() {
   const updateDonationStatus = async (id: number, status: string) => {
     try {
       const response = await fetch(
-        `http://localhost:HTTPS://NISALAVILA-API-PRODUCTION.UP.RAILWAY.APP/api/donations/${id}/status`,
+        `https://nisalavila-api-production.up.railway.app/api/donations/${id}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
