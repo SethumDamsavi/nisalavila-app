@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import "../../i18n/index";
+import { useTheme } from "../../utils/theme";
 
 type Post = {
   id: number;
@@ -21,6 +22,7 @@ type Post = {
 
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -71,42 +73,73 @@ export default function HomeScreen() {
   };
 
   const renderPost = ({ item }: { item: Post }) => (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.colors.card,
+          borderLeftColor: theme.colors.primary,
+        },
+      ]}
+    >
       <View style={styles.cardTop}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>N</Text>
         </View>
         <View style={styles.cardMeta}>
-          <Text style={styles.charityLabel}>{t("home.title")} Foundation</Text>
-          <Text style={styles.dateText}>📅 {formatDate(item.createdAt)}</Text>
+          <Text style={[styles.charityLabel, { color: theme.colors.text }]}>
+            {t("home.title")} Foundation
+          </Text>
+          <Text style={[styles.dateText, { color: theme.colors.subtext }]}>
+            📅 {formatDate(item.createdAt)}
+          </Text>
         </View>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{t("home.update")}</Text>
+        <View
+          style={[
+            styles.badge,
+            { backgroundColor: theme.dark ? "#1a3a2a" : "#e8f8f0" },
+          ]}
+        >
+          <Text style={[styles.badgeText, { color: theme.colors.primary }]}>
+            {t("home.update")}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.divider} />
+      <View
+        style={[styles.divider, { backgroundColor: theme.colors.border }]}
+      />
 
-      <Text style={styles.postTitle}>{item.title}</Text>
-      <Text style={styles.postContent}>{item.content}</Text>
+      <Text style={[styles.postTitle, { color: theme.colors.text }]}>
+        {item.title}
+      </Text>
+      <Text style={[styles.postContent, { color: theme.colors.subtext }]}>
+        {item.content}
+      </Text>
 
-      <View style={styles.divider} />
+      <View
+        style={[styles.divider, { backgroundColor: theme.colors.border }]}
+      />
 
       <View style={styles.cardActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => toggleLike(item.id)}
         >
-          <Text style={styles.actionText}>
+          <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
             {likes[item.id] ? "❤️" : "🤍"}{" "}
             {likes[item.id] ? t("home.liked") : t("home.like")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>💬 {t("home.comment")}</Text>
+          <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
+            💬 {t("home.comment")}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>🔗 {t("home.share")}</Text>
+          <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
+            🔗 {t("home.share")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -114,17 +147,23 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
+      <View
+        style={[styles.centered, { backgroundColor: theme.colors.background }]}
+      >
         <ActivityIndicator size="large" color="#2ecc71" />
-        <Text style={styles.loadingText}>{t("home.loading")}</Text>
+        <Text style={[styles.loadingText, { color: theme.colors.subtext }]}>
+          {t("home.loading")}
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.colors.header }]}>
         <View>
           <Text style={styles.headerTitle}>🌿 {t("home.title")}</Text>
           <Text style={styles.headerSubtitle}>{t("home.subtitle")}</Text>
@@ -140,32 +179,59 @@ export default function HomeScreen() {
               {language === "en" ? "සිං" : "EN"}
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.langToggle} onPress={toggleTheme}>
+            <Text style={styles.langToggleText}>
+              {theme.dark ? "☀️" : "🌙"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       {/* Stats Bar */}
-      <View style={styles.statsBar}>
+      <View
+        style={[
+          styles.statsBar,
+          {
+            backgroundColor: theme.colors.card,
+            borderBottomColor: theme.colors.border,
+          },
+        ]}
+      >
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>1</Text>
-          <Text style={styles.statLabel}>{t("home.charity")}</Text>
+          <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
+            {t("home.charity")}
+          </Text>
         </View>
-        <View style={styles.statDivider} />
+        <View
+          style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
+        />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{posts.length}</Text>
-          <Text style={styles.statLabel}>{t("home.updates")}</Text>
+          <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
+            {t("home.updates")}
+          </Text>
         </View>
-        <View style={styles.statDivider} />
+        <View
+          style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
+        />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>LKR 500K</Text>
-          <Text style={styles.statLabel}>{t("home.goal")}</Text>
+          <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
+            {t("home.goal")}
+          </Text>
         </View>
       </View>
 
       {posts.length === 0 ? (
         <View style={styles.centered}>
           <Text style={styles.emptyIcon}>📭</Text>
-          <Text style={styles.emptyText}>{t("home.noAnnouncements")}</Text>
-          <Text style={styles.emptySubtext}>{t("home.checkBack")}</Text>
+          <Text style={[styles.emptyText, { color: theme.colors.subtext }]}>
+            {t("home.noAnnouncements")}
+          </Text>
+          <Text style={[styles.emptySubtext, { color: theme.colors.subtext }]}>
+            {t("home.checkBack")}
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -188,9 +254,8 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f4f0" },
+  container: { flex: 1 },
   header: {
-    backgroundColor: "#27ae60",
     padding: 20,
     paddingTop: 50,
     flexDirection: "row",
@@ -217,25 +282,19 @@ const styles = StyleSheet.create({
   },
   langToggleText: { color: "#fff", fontSize: 12, fontWeight: "700" },
   statsBar: {
-    backgroundColor: "#fff",
     flexDirection: "row",
     padding: 16,
     justifyContent: "space-around",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
     elevation: 2,
   },
   statItem: { alignItems: "center" },
   statNumber: { fontSize: 16, fontWeight: "700", color: "#27ae60" },
-  statLabel: { fontSize: 11, color: "#999", marginTop: 2 },
-  statDivider: { width: 1, height: 30, backgroundColor: "#eee" },
+  statLabel: { fontSize: 11, marginTop: 2 },
+  statDivider: { width: 1, height: 30 },
   list: { padding: 16, paddingBottom: 20 },
   card: {
-    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -244,13 +303,8 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
     borderLeftWidth: 4,
-    borderLeftColor: "#2ecc71",
   },
-  cardTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
+  cardTop: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
   avatar: {
     width: 44,
     height: 44,
@@ -259,41 +313,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
-    shadowColor: "#27ae60",
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 3,
   },
   avatarText: { color: "#fff", fontWeight: "bold", fontSize: 20 },
   cardMeta: { flex: 1 },
-  charityLabel: { fontSize: 14, fontWeight: "700", color: "#1a1a1a" },
-  dateText: { fontSize: 11, color: "#999", marginTop: 2 },
-  badge: {
-    backgroundColor: "#e8f8f0",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  badgeText: { color: "#27ae60", fontSize: 11, fontWeight: "600" },
-  divider: { height: 1, backgroundColor: "#f5f5f5", marginVertical: 12 },
+  charityLabel: { fontSize: 14, fontWeight: "700" },
+  dateText: { fontSize: 11, marginTop: 2 },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  badgeText: { fontSize: 11, fontWeight: "600" },
+  divider: { height: 1, marginVertical: 12 },
   postTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#1a1a1a",
     marginBottom: 8,
     lineHeight: 22,
   },
-  postContent: { fontSize: 14, color: "#555", lineHeight: 22 },
+  postContent: { fontSize: 14, lineHeight: 22 },
   cardActions: {
     flexDirection: "row",
     justifyContent: "space-around",
     paddingTop: 4,
   },
   actionButton: { flexDirection: "row", alignItems: "center", padding: 4 },
-  actionText: { fontSize: 13, color: "#888", fontWeight: "500" },
+  actionText: { fontSize: 13, fontWeight: "500" },
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
-  loadingText: { marginTop: 12, color: "#666", fontSize: 14 },
+  loadingText: { marginTop: 12, fontSize: 14 },
   emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { fontSize: 16, color: "#999", fontWeight: "600" },
-  emptySubtext: { fontSize: 13, color: "#bbb", marginTop: 4 },
+  emptyText: { fontSize: 16, fontWeight: "600" },
+  emptySubtext: { fontSize: 13, marginTop: 4 },
 });
