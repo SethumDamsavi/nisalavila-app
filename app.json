@@ -26,16 +26,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/android-icon-foreground.png",
-          "color": "#27ae60"
-        }
-      ]
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     },
