@@ -18,11 +18,7 @@
         "backgroundColor": "#27ae60"
       },
       "package": "com.nisalavila.app",
-      "permissions": [
-        "NOTIFICATIONS",
-        "INTERNET",
-        "ACCESS_NETWORK_STATE"
-      ]
+      "permissions": ["NOTIFICATIONS", "INTERNET", "ACCESS_NETWORK_STATE"]
     },
     "web": {
       "bundler": "metro",
@@ -31,10 +27,13 @@
     },
     "plugins": [
       "expo-router",
-      "@stripe/stripe-react-native",
-      "expo-font",
-      "expo-image",
-      "expo-web-browser"
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.nisalavila.app",
+          "enableGooglePay": false
+        }
+      ]
     ],
     "extra": {
       "apiUrl": "https://nisalavila-api-production.up.railway.app",
