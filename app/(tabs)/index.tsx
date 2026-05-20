@@ -216,7 +216,7 @@ export default function HomeScreen() {
           style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
         />
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>LKR 500K</Text>
+          <Text style={styles.statNumber}>LKR 3M</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
             {t("home.goal")}
           </Text>
