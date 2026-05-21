@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,6 +24,7 @@ type Post = {
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -131,11 +133,16 @@ export default function HomeScreen() {
             {likes[item.id] ? t("home.liked") : t("home.like")}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => router.push(`/comments?postId=${item.id}`)}
+        >
           <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
             💬 {t("home.comment")}
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.actionButton}>
           <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
             🔗 {t("home.share")}
@@ -198,7 +205,7 @@ export default function HomeScreen() {
         ]}
       >
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>1</Text>
+          <Text style={styles.statNumber}>5</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
             {t("home.charity")}
           </Text>
