@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -20,6 +21,7 @@ type Charity = {
 export default function CharitiesScreen() {
   const [charities, setCharities] = useState<Charity[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const fetchCharities = async () => {
     try {
@@ -43,7 +45,10 @@ export default function CharitiesScreen() {
     const progress = item.target > 0 ? (item.current / item.target) * 100 : 0;
 
     return (
-      <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push(`/charity?id=${item.id}`)}
+      >
         <View style={styles.cardHeader}>
           <Text style={styles.charityName}>{item.name}</Text>
           {item.verified && (
@@ -75,7 +80,7 @@ export default function CharitiesScreen() {
         <TouchableOpacity style={styles.donateButton}>
           <Text style={styles.donateButtonText}>Donate Now</Text>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 
