@@ -21,6 +21,9 @@ type Post = {
   createdAt: string;
 };
 
+const API = "https://nisalavila-api-production.up.railway.app";
+const USER_ID = 1;
+
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
@@ -29,20 +32,43 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likes, setLikes] = useState<{ [key: number]: boolean }>({});
+  const [likeCounts, setLikeCounts] = useState<{ [key: number]: number }>({});
   const [language, setLanguage] = useState<"en" | "si">("en");
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(
-        "https://nisalavila-api-production.up.railway.app/api/posts",
-      );
+      const response = await fetch(`${API}/api/posts`);
       const data = await response.json();
       setPosts(data);
+      fetchLikesForPosts(data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const fetchLikesForPosts = async (postList: Post[]) => {
+    try {
+      const likeStatuses: { [key: number]: boolean } = {};
+      const likeCts: { [key: number]: number } = {};
+      await Promise.all(
+        postList.map(async (post) => {
+          const [checkRes, countRes] = await Promise.all([
+            fetch(`${API}/api/likes/check/${post.id}/${USER_ID}`),
+            fetch(`${API}/api/likes/post/${post.id}`),
+          ]);
+          const checkData = await checkRes.json();
+          const countData = await countRes.json();
+          likeStatuses[post.id] = checkData.liked;
+          likeCts[post.id] = countData.count;
+        }),
+      );
+      setLikes(likeStatuses);
+      setLikeCounts(likeCts);
+    } catch (error) {
+      console.error("Error fetching likes:", error);
     }
   };
 
@@ -55,8 +81,24 @@ export default function HomeScreen() {
     fetchPosts();
   };
 
-  const toggleLike = (id: number) => {
-    setLikes((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleLike = async (postId: number) => {
+    try {
+      const response = await fetch(`${API}/api/likes/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, userId: USER_ID }),
+      });
+      const data = await response.json();
+      setLikes((prev) => ({ ...prev, [postId]: data.liked }));
+      setLikeCounts((prev) => ({
+        ...prev,
+        [postId]: data.liked
+          ? (prev[postId] || 0) + 1
+          : Math.max((prev[postId] || 0) - 1, 0),
+      }));
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
   };
 
   const toggleLanguage = () => {
@@ -128,9 +170,13 @@ export default function HomeScreen() {
           style={styles.actionButton}
           onPress={() => toggleLike(item.id)}
         >
-          <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
-            {likes[item.id] ? "❤️" : "🤍"}{" "}
-            {likes[item.id] ? t("home.liked") : t("home.like")}
+          <Text
+            style={[
+              styles.actionText,
+              { color: likes[item.id] ? "#e74c3c" : theme.colors.subtext },
+            ]}
+          >
+            {likes[item.id] ? "❤️" : "🤍"} {likeCounts[item.id] || 0}
           </Text>
         </TouchableOpacity>
 
@@ -169,7 +215,6 @@ export default function HomeScreen() {
     <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.colors.header }]}>
         <View>
           <Text style={styles.headerTitle}>🌿 {t("home.title")}</Text>
@@ -194,7 +239,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Stats Bar */}
       <View
         style={[
           styles.statsBar,
