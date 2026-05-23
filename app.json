@@ -18,7 +18,11 @@
         "backgroundColor": "#27ae60"
       },
       "package": "com.nisalavila.app",
-      "permissions": ["NOTIFICATIONS", "INTERNET", "ACCESS_NETWORK_STATE"]
+      "permissions": [
+        "NOTIFICATIONS",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,7 +37,8 @@
           "merchantIdentifier": "merchant.com.nisalavila.app",
           "enableGooglePay": false
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "extra": {
       "apiUrl": "https://nisalavila-api-production.up.railway.app",

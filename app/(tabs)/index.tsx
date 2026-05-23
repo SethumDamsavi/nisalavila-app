@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import "../../i18n/index";
 import { useTheme } from "../../utils/theme";
+import * as Clipboard from "expo-clipboard";
 
 type Post = {
   id: number;
@@ -34,6 +35,7 @@ export default function HomeScreen() {
   const [likes, setLikes] = useState<{ [key: number]: boolean }>({});
   const [likeCounts, setLikeCounts] = useState<{ [key: number]: number }>({});
   const [language, setLanguage] = useState<"en" | "si">("en");
+  const [shareMessage, setShareMessage] = useState("");
 
   const fetchPosts = async () => {
     try {
@@ -63,7 +65,7 @@ export default function HomeScreen() {
           const countData = await countRes.json();
           likeStatuses[post.id] = checkData.liked;
           likeCts[post.id] = countData.count;
-        }),
+        })
       );
       setLikes(likeStatuses);
       setLikeCounts(likeCts);
@@ -107,6 +109,24 @@ export default function HomeScreen() {
     i18n.changeLanguage(newLang);
   };
 
+  const handleShare = async (post: Post) => {
+    try {
+      const shareText = `${post.title}\n\n${post.content}\n\n🌿 Shared from Nisalavila Foundation\n${API}`;
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({
+          title: post.title,
+          text: shareText,
+        });
+      } else {
+        await Clipboard.setStringAsync(shareText);
+        setShareMessage("✅ Copied to clipboard!");
+        setTimeout(() => setShareMessage(""), 3000);
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -117,15 +137,10 @@ export default function HomeScreen() {
   };
 
   const renderPost = ({ item }: { item: Post }) => (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: theme.colors.card,
-          borderLeftColor: theme.colors.primary,
-        },
-      ]}
-    >
+    <View style={[styles.card, {
+      backgroundColor: theme.colors.card,
+      borderLeftColor: theme.colors.primary,
+    }]}>
       <View style={styles.cardTop}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>N</Text>
@@ -138,21 +153,14 @@ export default function HomeScreen() {
             📅 {formatDate(item.createdAt)}
           </Text>
         </View>
-        <View
-          style={[
-            styles.badge,
-            { backgroundColor: theme.dark ? "#1a3a2a" : "#e8f8f0" },
-          ]}
-        >
+        <View style={[styles.badge, { backgroundColor: theme.dark ? "#1a3a2a" : "#e8f8f0" }]}>
           <Text style={[styles.badgeText, { color: theme.colors.primary }]}>
             {t("home.update")}
           </Text>
         </View>
       </View>
 
-      <View
-        style={[styles.divider, { backgroundColor: theme.colors.border }]}
-      />
+      <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
       <Text style={[styles.postTitle, { color: theme.colors.text }]}>
         {item.title}
@@ -161,21 +169,16 @@ export default function HomeScreen() {
         {item.content}
       </Text>
 
-      <View
-        style={[styles.divider, { backgroundColor: theme.colors.border }]}
-      />
+      <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
       <View style={styles.cardActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => toggleLike(item.id)}
         >
-          <Text
-            style={[
-              styles.actionText,
-              { color: likes[item.id] ? "#e74c3c" : theme.colors.subtext },
-            ]}
-          >
+          <Text style={[styles.actionText, {
+            color: likes[item.id] ? "#e74c3c" : theme.colors.subtext
+          }]}>
             {likes[item.id] ? "❤️" : "🤍"} {likeCounts[item.id] || 0}
           </Text>
         </TouchableOpacity>
@@ -189,7 +192,10 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => handleShare(item)}
+        >
           <Text style={[styles.actionText, { color: theme.colors.subtext }]}>
             🔗 {t("home.share")}
           </Text>
@@ -200,9 +206,7 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View
-        style={[styles.centered, { backgroundColor: theme.colors.background }]}
-      >
+      <View style={[styles.centered, { backgroundColor: theme.colors.background }]}>
         <ActivityIndicator size="large" color="#2ecc71" />
         <Text style={[styles.loadingText, { color: theme.colors.subtext }]}>
           {t("home.loading")}
@@ -212,9 +216,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={[styles.header, { backgroundColor: theme.colors.header }]}>
         <View>
           <Text style={styles.headerTitle}>🌿 {t("home.title")}</Text>
@@ -239,33 +241,31 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View
-        style={[
-          styles.statsBar,
-          {
-            backgroundColor: theme.colors.card,
-            borderBottomColor: theme.colors.border,
-          },
-        ]}
-      >
+      {/* Share Toast Message */}
+      {shareMessage ? (
+        <View style={styles.toast}>
+          <Text style={styles.toastText}>{shareMessage}</Text>
+        </View>
+      ) : null}
+
+      <View style={[styles.statsBar, {
+        backgroundColor: theme.colors.card,
+        borderBottomColor: theme.colors.border,
+      }]}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>5</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
             {t("home.charity")}
           </Text>
         </View>
-        <View
-          style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
-        />
+        <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{posts.length}</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
             {t("home.updates")}
           </Text>
         </View>
-        <View
-          style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
-        />
+        <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>LKR 3M</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
@@ -332,6 +332,12 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.4)",
   },
   langToggleText: { color: "#fff", fontSize: 12, fontWeight: "700" },
+  toast: {
+    backgroundColor: "#2ecc71",
+    padding: 12,
+    alignItems: "center",
+  },
+  toastText: { color: "#fff", fontWeight: "600", fontSize: 14 },
   statsBar: {
     flexDirection: "row",
     padding: 16,
@@ -372,12 +378,7 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   badgeText: { fontSize: 11, fontWeight: "600" },
   divider: { height: 1, marginVertical: 12 },
-  postTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 8,
-    lineHeight: 22,
-  },
+  postTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8, lineHeight: 22 },
   postContent: { fontSize: 14, lineHeight: 22 },
   cardActions: {
     flexDirection: "row",
