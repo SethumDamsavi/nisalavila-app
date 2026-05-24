@@ -1,6 +1,6 @@
 import * as Clipboard from "expo-clipboard";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FlatList,
@@ -38,27 +38,7 @@ export default function HomeScreen() {
   const [language, setLanguage] = useState<"en" | "si">("en");
   const [shareMessage, setShareMessage] = useState("");
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      const cached = getCache<Post[]>("posts");
-      if (cached && !refreshing) {
-        setPosts(cached);
-        setLoading(false);
-        return;
-      }
-      const response = await fetch(`${API}/api/posts`);
-      const data = await response.json();
-      setCache("posts", data);
-      setPosts(data);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [refreshing]);
-
-  const fetchLikesForPosts = async (postList: Post[]) => {
+  const fetchLikesForPosts = useCallback(async (postList: Post[]) => {
     try {
       const likeStatuses: { [key: number]: boolean } = {};
       const likeCts: { [key: number]: number } = {};
@@ -79,7 +59,28 @@ export default function HomeScreen() {
     } catch (error) {
       console.error("Error fetching likes:", error);
     }
-  };
+  }, []);
+
+  const fetchPosts = useCallback(async () => {
+    try {
+      const cached = getCache<Post[]>("posts");
+      if (cached && !refreshing) {
+        setPosts(cached);
+        setLoading(false);
+        return;
+      }
+      const response = await fetch(`${API}/api/posts`);
+      const data = await response.json();
+      setCache("posts", data);
+      setPosts(data);
+      fetchLikesForPosts(data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [refreshing, fetchLikesForPosts]);
 
   useEffect(() => {
     fetchPosts();
