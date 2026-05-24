@@ -5,8 +5,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
+import { CharitySkeleton } from "../../components/SkeletonLoader";
+import { getCache, setCache } from "../../utils/cache";
 
 type Charity = {
   id: number;

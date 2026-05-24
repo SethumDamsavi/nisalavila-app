@@ -8,8 +8,9 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
+import { PostSkeleton } from "../../components/SkeletonLoader";
 import "../../i18n/index";
 import { getCache, setCache } from "../../utils/cache";
 import { useTheme } from "../../utils/theme";
@@ -37,12 +38,11 @@ export default function HomeScreen() {
   const [language, setLanguage] = useState<"en" | "si">("en");
   const [shareMessage, setShareMessage] = useState("");
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       const cached = getCache<Post[]>("posts");
       if (cached && !refreshing) {
         setPosts(cached);
-        fetchLikesForPosts(cached);
         setLoading(false);
         return;
       }
@@ -50,14 +50,13 @@ export default function HomeScreen() {
       const data = await response.json();
       setCache("posts", data);
       setPosts(data);
-      fetchLikesForPosts(data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [refreshing]);
 
   const fetchLikesForPosts = async (postList: Post[]) => {
     try {
@@ -84,7 +83,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
   const onRefresh = () => {
     setRefreshing(true);

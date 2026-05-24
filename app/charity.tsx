@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     ScrollView,
@@ -47,7 +47,7 @@ export default function CharityDetailScreen() {
   const [followed, setFollowed] = useState(false);
   const [activeTab, setActiveTab] = useState<"about" | "updates">("about");
 
-  const fetchCharity = async () => {
+  const fetchCharity = useCallback(async () => {
     try {
       const [charityRes, postsRes] = await Promise.all([
         fetch(`${API}/api/charities/${id}`),
@@ -62,11 +62,11 @@ export default function CharityDetailScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) fetchCharity();
-  }, [id]);
+  }, [id, fetchCharity]);
 
   const handleFollow = async () => {
     try {

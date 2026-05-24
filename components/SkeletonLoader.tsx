@@ -35,7 +35,7 @@ export const SkeletonBox = ({
     );
     animation.start();
     return () => animation.stop();
-  }, []);
+  }, [opacity]);
 
   return (
     <Animated.View
