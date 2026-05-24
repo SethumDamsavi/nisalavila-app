@@ -1,18 +1,18 @@
+import * as Clipboard from "expo-clipboard";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import "../../i18n/index";
+import { getCache, setCache } from "../../utils/cache";
 import { useTheme } from "../../utils/theme";
-import * as Clipboard from "expo-clipboard";
 
 type Post = {
   id: number;
@@ -39,8 +39,16 @@ export default function HomeScreen() {
 
   const fetchPosts = async () => {
     try {
+      const cached = getCache<Post[]>("posts");
+      if (cached && !refreshing) {
+        setPosts(cached);
+        fetchLikesForPosts(cached);
+        setLoading(false);
+        return;
+      }
       const response = await fetch(`${API}/api/posts`);
       const data = await response.json();
+      setCache("posts", data);
       setPosts(data);
       fetchLikesForPosts(data);
     } catch (error) {
@@ -65,7 +73,7 @@ export default function HomeScreen() {
           const countData = await countRes.json();
           likeStatuses[post.id] = checkData.liked;
           likeCts[post.id] = countData.count;
-        })
+        }),
       );
       setLikes(likeStatuses);
       setLikeCounts(likeCts);
@@ -137,10 +145,15 @@ export default function HomeScreen() {
   };
 
   const renderPost = ({ item }: { item: Post }) => (
-    <View style={[styles.card, {
-      backgroundColor: theme.colors.card,
-      borderLeftColor: theme.colors.primary,
-    }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.colors.card,
+          borderLeftColor: theme.colors.primary,
+        },
+      ]}
+    >
       <View style={styles.cardTop}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>N</Text>
@@ -153,14 +166,21 @@ export default function HomeScreen() {
             📅 {formatDate(item.createdAt)}
           </Text>
         </View>
-        <View style={[styles.badge, { backgroundColor: theme.dark ? "#1a3a2a" : "#e8f8f0" }]}>
+        <View
+          style={[
+            styles.badge,
+            { backgroundColor: theme.dark ? "#1a3a2a" : "#e8f8f0" },
+          ]}
+        >
           <Text style={[styles.badgeText, { color: theme.colors.primary }]}>
             {t("home.update")}
           </Text>
         </View>
       </View>
 
-      <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+      <View
+        style={[styles.divider, { backgroundColor: theme.colors.border }]}
+      />
 
       <Text style={[styles.postTitle, { color: theme.colors.text }]}>
         {item.title}
@@ -169,16 +189,23 @@ export default function HomeScreen() {
         {item.content}
       </Text>
 
-      <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+      <View
+        style={[styles.divider, { backgroundColor: theme.colors.border }]}
+      />
 
       <View style={styles.cardActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => toggleLike(item.id)}
         >
-          <Text style={[styles.actionText, {
-            color: likes[item.id] ? "#e74c3c" : theme.colors.subtext
-          }]}>
+          <Text
+            style={[
+              styles.actionText,
+              {
+                color: likes[item.id] ? "#e74c3c" : theme.colors.subtext,
+              },
+            ]}
+          >
             {likes[item.id] ? "❤️" : "🤍"} {likeCounts[item.id] || 0}
           </Text>
         </TouchableOpacity>
@@ -206,17 +233,30 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.centered, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color="#2ecc71" />
-        <Text style={[styles.loadingText, { color: theme.colors.subtext }]}>
-          {t("home.loading")}
-        </Text>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <View style={[styles.header, { backgroundColor: theme.colors.header }]}>
+          <View>
+            <Text style={styles.headerTitle}>🌿 Nisalavila</Text>
+            <Text style={styles.headerSubtitle}>
+              Connecting hearts, changing lives
+            </Text>
+          </View>
+        </View>
+        <View style={{ padding: 16 }}>
+          <PostSkeleton />
+          <PostSkeleton />
+          <PostSkeleton />
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <View style={[styles.header, { backgroundColor: theme.colors.header }]}>
         <View>
           <Text style={styles.headerTitle}>🌿 {t("home.title")}</Text>
@@ -248,24 +288,33 @@ export default function HomeScreen() {
         </View>
       ) : null}
 
-      <View style={[styles.statsBar, {
-        backgroundColor: theme.colors.card,
-        borderBottomColor: theme.colors.border,
-      }]}>
+      <View
+        style={[
+          styles.statsBar,
+          {
+            backgroundColor: theme.colors.card,
+            borderBottomColor: theme.colors.border,
+          },
+        ]}
+      >
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>5</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
             {t("home.charity")}
           </Text>
         </View>
-        <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
+        <View
+          style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
+        />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{posts.length}</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
             {t("home.updates")}
           </Text>
         </View>
-        <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
+        <View
+          style={[styles.statDivider, { backgroundColor: theme.colors.border }]}
+        />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>LKR 3M</Text>
           <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
@@ -378,7 +427,12 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   badgeText: { fontSize: 11, fontWeight: "600" },
   divider: { height: 1, marginVertical: 12 },
-  postTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8, lineHeight: 22 },
+  postTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8,
+    lineHeight: 22,
+  },
   postContent: { fontSize: 14, lineHeight: 22 },
   cardActions: {
     flexDirection: "row",

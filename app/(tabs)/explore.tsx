@@ -1,12 +1,11 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 type Charity = {
@@ -25,10 +24,17 @@ export default function CharitiesScreen() {
 
   const fetchCharities = async () => {
     try {
+      const cached = getCache<Charity[]>("charities");
+      if (cached) {
+        setCharities(cached);
+        setLoading(false);
+        return;
+      }
       const response = await fetch(
         "https://nisalavila-api-production.up.railway.app/api/charities",
       );
       const data = await response.json();
+      setCache("charities", data);
       setCharities(data);
     } catch (error) {
       console.error("Error fetching charities:", error);
@@ -86,9 +92,12 @@ export default function CharitiesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#2ecc71" />
-        <Text style={styles.loadingText}>Loading charities...</Text>
+      <View style={[styles.container]}>
+        <Text style={styles.header}>Charities</Text>
+        <Text style={styles.subheader}>Support a cause you care about</Text>
+        <CharitySkeleton />
+        <CharitySkeleton />
+        <CharitySkeleton />
       </View>
     );
   }
